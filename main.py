@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 app = FastAPI()
 
-# Frontend se connect karne ke liye CORS allow karna
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -15,12 +15,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Saved AI Model ko load karna
+
 with open("loan_model.pkl", "rb") as f:
     loan_model = pickle.load(f)
 
 
-# Input data ka structure (Pydantic Model)
+
 class LoanInput(BaseModel):
     income: float
     loan_amount: float
@@ -35,7 +35,6 @@ def home():
 
 @app.post("/predict")
 def predict_loan(data: LoanInput):
-    # Data ko array format mein convert karna AI model ke liye
     input_data = np.array(
         [[data.income, data.loan_amount, data.credit_score, data.education]]
     )
