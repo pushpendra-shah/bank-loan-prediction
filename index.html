@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> UBI Bank Loan Eligibility Predictor</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #eef2f3;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .form-container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            width: 400px;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 10px;
+            color: #555;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #result {
+            margin-top: 25px;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <h2>UBI Bank Loan Predictor</h2>
+    
+    <label for="income">Monthly Income ($/₹):</label>
+    <input type="number" id="income" placeholder="e.g. 50000" value="45000">
+
+    <label for="loan_amount">Required Loan Amount:</label>
+    <input type="number" id="loan_amount" placeholder="e.g. 20000" value="15000">
+
+    <label for="credit_score">Credit Score (300 - 850):</label>
+    <input type="number" id="credit_score" placeholder="e.g. 750" value="720">
+
+    <label for="education">Education Status:</label>
+    <select id="education">
+        <option value="1">Graduate</option>
+        <option value="0">Not Graduate</option>
+    </select>
+
+    <button onclick="checkLoanEligibility()">Check Eligibility</button>
+
+    <div id="result"></div>
+</div>
+
+<script>
+    async function checkLoanEligibility() {
+        const income = document.getElementById('income').value;
+        const loan_amount = document.getElementById('loan_amount').value;
+        const credit_score = document.getElementById('credit_score').value;
+        const education = document.getElementById('education').value;
+        const resultDiv = document.getElementById('result');
+
+        // Validation
+        if(!income || !loan_amount || !credit_score) {
+            alert("Kripya saari details bharein!");
+            return;
+        }
+
+        resultDiv.style.display = "block";
+        resultDiv.style.backgroundColor = "#e1e1e1";
+        resultDiv.style.color = "#333";
+        resultDiv.innerHTML = "AI Analysis Chal Raha Hai... 🧠";
+
+        try {
+            // FastAPI Backend ko POST request bhejna
+            const response = await fetch('http://127.0.0.1:8000/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    income: parseFloat(income),
+                    loan_amount: parseFloat(loan_amount),
+                    credit_score: parseFloat(credit_score),
+                    education: parseInt(education)
+                })
+            });
+
+            const result = await response.json();
+            
+            // UI par response dikhana
+            resultDiv.style.backgroundColor = result.color;
+            resultDiv.style.color = "white";
+            resultDiv.innerHTML = result.loan_status;
+
+        } catch (error) {
+            console.error("Error:", error);
+            resultDiv.style.backgroundColor = "#f44336";
+            resultDiv.style.color = "white";
+            resultDiv.innerHTML = "❌ Backend server connect nahi ho paya!";
+        }
+    }
+</script>
+
+</body>
+</html>
